@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EVC CORP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #0f0f0f;
+      z-index: -1;
+    }
+    .login-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px 30px;
+      width: 300px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 0 40px red;
+      transition: all 0.3s ease;
+    }
+    .login-box h2 {
+      margin-bottom: 20px;
+    }
+    .login-box input {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      outline: none;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(90deg, #ff0057, #ffbd00);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: transform 0.3s;
+    }
+    .login-box button:hover {
+      transform: scale(1.05);
+    }
+    .bottom-text {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #ccc;
+    }
+    .bottom-text a {
+      color: red;
+      text-decoration: none;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+    .bottom-text a:hover {
+      text-decoration: underline;
+    }
+    .hidden {
+      display: none;
+    }
+    .error-box {
+      margin-top: 10px;
+      background-color: rgba(255, 0, 0, 0.15);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: white;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease;
+      height: 0;
+      overflow: hidden;
+    }
+    .error-box.show {
+      opacity: 1;
+      transform: translateY(0);
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <!-- Login Form -->
+  <div class="login-box" id="loginForm">
+    <h2>EVC CORP</h2>
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <div class="error-box" id="errorBoxLogin">Invalid email or password</div>
+    <div class="bottom-text">
+      Don't have an account?
+      <a onclick="toggleForms()">Sign up</a>
+    </div>
+  </div>
+
+  <!-- Sign Up Form -->
+  <div class="login-box hidden" id="signupForm">
+    <h2>EVC CORP</h2>
+    <input type="text" id="signupUsername" placeholder="Username" />
+    <input type="email" id="signupEmail" placeholder="Email" />
+    <input type="password" id="signupPassword" placeholder="Password" />
+    <button onclick="signup()">Sign Up</button>
+    <div class="error-box" id="errorBoxSignup">Email already exists</div>
+    <div class="bottom-text">
+      Already have an account?
+      <a onclick="toggleForms()">Login</a>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <!-- Particles -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJMUQSLbtDQZ5GbndVH0GhDAHkq41suXA",
+      authDomain: "evc-corp.firebaseapp.com",
+      projectId: "evc-corp",
+      storageBucket: "evc-corp.appspot.com",
+      messagingSenderId: "255247970813",
+      appId: "1:255247970813:web:40ea1ca8f8461f9bf6e994"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const loginBox = document.getElementById("loginForm");
+    const signupBox = document.getElementById("signupForm");
+    const errorBoxLogin = document.getElementById("errorBoxLogin");
+    const errorBoxSignup = document.getElementById("errorBoxSignup");
+
+    function toggleForms() {
+      loginBox.classList.toggle("hidden");
+      signupBox.classList.toggle("hidden");
+    }
+
+    function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          window.open("dashboard.html", "_blank");
+        })
+        .catch(() => {
+          showErrorBox(errorBoxLogin);
+        });
+    }
+
+    function signup() {
+      const username = document.getElementById("signupUsername").value;
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          return userCredential.user.updateProfile({ displayName: username });
+        })
+        .then(() => {
+          window.open("dashboard.html", "_blank");
+        })
+        .catch(() => {
+          showErrorBox(errorBoxSignup);
+        });
+    }
+
+    function showErrorBox(box) {
+      box.classList.add("show");
+      setTimeout(() => {
+        box.classList.remove("show");
+      }, 3000);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      const activeBox = loginBox.classList.contains("hidden") ? signupBox : loginBox;
+      const x = (e.clientX / window.innerWidth - 0.5) * 70;
+      const y = (e.clientY / window.innerHeight - 0.5) * -70;
+      activeBox.style.transform = `translate(-50%, -50%) rotateX(${y}deg) rotateY(${x}deg)`;
+    });
+
+    document.addEventListener('mouseout', () => {
+      loginBox.style.transform = 'translate(-50%, -50%) rotateX(0deg) rotateY(0deg)';
+      signupBox.style.transform = 'translate(-50%, -50%) rotateX(0deg) rotateY(0deg)';
+    });
+
+    // ✅ Particles config
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#ffffff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3, random: true },
+        move: { enable: true, speed: 2 }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: { onhover: { enable: false }, onclick: { enable: false }, resize: true }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>
